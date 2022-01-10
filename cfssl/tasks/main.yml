@@ -1,0 +1,36 @@
+---
+# tasks file for cfssl
+- hosts:
+  name: Install cfssl and cfssljson
+  gather_facts: no
+  become: yes
+  tasks:
+    
+    - name: Download sha256 file for cfssl and cfssljson
+      get_url:
+        url: https://github.com/cloudflare/cfssl/releases/download/v{{ cfssl_version }}/cfssl_{{ cfssl_version }}_checksums.txt
+        src: /tmp/cfssl_{{ cfssl_version }}_checksums.txt
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: register sha256 checksum value for cfssl
+      lineinfile:
+        path: /tmp/cfssl_{{ cfssl_version }}_checksums.txt
+        state: present
+        regexp: "cfssl_{{ cfssl_version }}_linux_amd64$"
+      register: sha256_cfssl
+    
+    - name: register sha256 checksum value for cfssl
+      lineinfile:
+        path: /tmp/cfssl_{{ cfssl_version }}_checksums.txt
+        state: present
+        regexp: "cfssljson_{{ cfssl_version }}_linux_amd64$"
+      register: sha256_cfssljson
+    
+    - name: debug variables
+      debug:
+        msg: "{{ item }}"
+      loop:
+        - sha256_cfssl
+        - sha256_cfssljson
