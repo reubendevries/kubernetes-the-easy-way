@@ -1,6 +1,6 @@
 ---
 # tasks file for cfssl
-- hosts:
+- hosts: localhost
   name: Install cfssl and cfssljson
   gather_facts: no
   become: yes
