@@ -1,36 +1,44 @@
 ---
 # tasks file for cfssl
-- hosts: localhost
-  name: Install cfssl and cfssljson
-  gather_facts: no
-  become: yes
-  tasks:
-    
-    - name: Download sha256 file for cfssl and cfssljson
-      get_url:
-        url: https://github.com/cloudflare/cfssl/releases/download/v{{ cfssl_version }}/cfssl_{{ cfssl_version }}_checksums.txt
-        src: /tmp/cfssl_{{ cfssl_version }}_checksums.txt
-        owner: root
-        group: root
-        mode: 0755
+- name: Download sha256 file for cfssl and cfssljson
+  get_url:
+    url: https://github.com/cloudflare/cfssl/releases/download/v{{ cfssl_version }}/cfssl_{{ cfssl_version }}_checksums.txt
+    dest: /tmp/cfssl_{{ cfssl_version }}_checksums.txt
+    owner: "{{ cfssl_owner }}"
+    group: "{{ cfssl_owner }}"
+    mode: 0444
+  register: checksum_file 
 
-    - name: register sha256 checksum value for cfssl
-      lineinfile:
-        path: /tmp/cfssl_{{ cfssl_version }}_checksums.txt
-        state: present
-        regexp: "cfssl_{{ cfssl_version }}_linux_amd64$"
-      register: sha256_cfssl
-    
-    - name: register sha256 checksum value for cfssl
-      lineinfile:
-        path: /tmp/cfssl_{{ cfssl_version }}_checksums.txt
-        state: present
-        regexp: "cfssljson_{{ cfssl_version }}_linux_amd64$"
-      register: sha256_cfssljson
-    
-    - name: debug variables
-      debug:
-        msg: "{{ item }}"
-      loop:
-        - sha256_cfssl
-        - sha256_cfssljson
+- name: register sha256 checksum value for cfssljson
+  set_fact:
+    sha256_cfssl: "{{ lookup('file', checksum_file['dest']).split()[30] }}"
+
+- name: set fact for sha256_cfssljson
+  set_fact:
+    sha256_cfssljson: "{{ lookup('file', checksum_file['dest']).split()[20] }}"
+
+- name: download cfssl for linux
+  get_url:
+    url: https://github.com/cloudflare/cfssl/releases/download/v{{ cfssl_version }}/cfssl_{{ cfssl_version }}_{{ cfssl_os }}_{{ cfssl_arch }}
+    dest: "{{ cfssl_bin_directory }}/cfssl"
+    owner: "{{ cfssl_owner }}"
+    group: "{{ cfssl_owner }}"
+    mode: 0655
+    checksum: "sha256:{{ sha256_cfssl }}"
+
+- name: download cfssljson for linux
+  get_url:
+    url: https://github.com/cloudflare/cfssl/releases/download/v{{ cfssl_version }}/cfssljson_{{ cfssl_version }}_{{ cfssl_os }}_{{ cfssl_arch }}
+    dest: "{{ cfssl_bin_directory }}/cfssljson"
+    owner: "{{ cfssl_owner }}"
+    group: "{{ cfssl_owner }}"
+    mode: 0655
+    checksum: "sha256:{{ sha256_cfssljson }}"
+
+#- name: generate ca-config.json
+#  shell:
+#    cmd: pwd
+
+- name: generate ca-config.json
+  shell:
+    cmd: cfssl gencert -initca ./cfssl/templates/ca-csr.j2 | cfssljson -bare /tmp/ca
