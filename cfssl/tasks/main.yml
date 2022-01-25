@@ -35,10 +35,30 @@
     mode: 0655
     checksum: "sha256:{{ sha256_cfssljson }}"
 
-#- name: generate ca-config.json
-#  shell:
-#    cmd: pwd
-
 - name: generate ca-config.json
-  shell:
-    cmd: cfssl gencert -initca ./cfssl/templates/ca-csr.j2 | cfssljson -bare /tmp/ca
+  shell: |
+    cfssl gencert \
+    -initca ./cfssl/templates/ca-csr.j2 | \
+    cfssljson -bare /tmp/ca
+
+- name: generate the admin client certificate and private key
+  shell: |
+    cfssl gencert \
+    -ca=/tmp/ca.pem \
+    -ca-key=/tmp/ca-key.pem \
+    -config=./cfssl/templates/ca-config.j2 \
+    -profile=kubernetes ./cfssl/templates/admin-csr.j2 | \
+    cfssljson -bare /tmp/admin
+
+- name: generate a certificate and private key for each Kubernetes worker node
+  shell: |
+    cfssl gencert \
+    -ca=/tmp/ca.pem \
+    -ca-key=/tmp/ca-key.pem \
+    -config=./cfssl/templates/ca-config.json \
+    -hostname="{{ item }}" \
+    -profile=kubernetes \
+    worker-csr.json | \
+    cfssljson -bare "{{ item }}"
+  with_items: "{{ groups['workers'] }}"
+        

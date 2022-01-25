@@ -1,5 +1,5 @@
 {
-  "CN": "Kubernetes",
+  "CN": "system:node:{{ item }}",
   "key": {
     "algo": "rsa",
     "size": 2048
@@ -8,7 +8,7 @@
     {
       "C": "{{ country }}",
       "L": "{{ location }}",
-      "O": "{{ organization }}",
+      "O": "system:nodes",
       "OU": "{{ organizational_unit }}",
       "ST": "{{ state }}"
     }
