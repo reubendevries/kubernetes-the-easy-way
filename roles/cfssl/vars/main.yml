@@ -1,0 +1,8 @@
+---
+# vars file for cfssl
+cfssl_version: 1.4.1
+cfssl_bin_directory: "/usr/local/bin"
+cfssl_owner: "root"
+cfssl_group: "root"
+cfssl_os: "linux"
+cfssl_arch: "amd64"

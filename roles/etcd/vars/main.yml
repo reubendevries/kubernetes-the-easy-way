@@ -1,0 +1,9 @@
+---
+# vars file for etcd
+
+etcd_version: "v3.4.15"
+etcd_bin_directory: "/usr/local/bin"
+etcd_owner: "root"
+etcd_group: "root"
+etcd_os: "linux"
+etcd_arch: "amd64"

@@ -1,0 +1,24 @@
+---
+# tasks file for kubectl
+- name: Download sha256 file for kubectl
+  get_url:
+      url: https://dl.k8s.io/{{ kubectl_version }}/bin/linux/amd64/kubectl.sha256
+      dest: /tmp/kubectl_{{ kubectl_version }}_checksum.txt
+      owner: "{{ kubectl_owner }}"
+      group: "{{ kubectl_owner }}"
+      mode: 0444
+  register: checksum_file
+
+- name: register sha256 checksum value for kubectl
+  set_fact:
+    sha256_kubectl: "{{ lookup('file', checksum_file['dest']) }}"
+
+
+- name: download kubectl for linux
+  get_url:
+    url: https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl
+    dest: "{{ kubectl_bin_directory }}/kubectl"
+    owner: "{{ kubectl_owner }}"
+    group: "{{ kubectl_owner }}"
+    mode: 0755
+    checksum: "sha256:{{ sha256_kubectl }}"
