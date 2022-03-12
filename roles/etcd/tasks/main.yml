@@ -1,0 +1,24 @@
+---
+# tasks file for etcd
+
+- name: Download sha256 file for etcd
+  get_url:
+    url: https://github.com/etcd-io/etcd/releases/download/{{ etcd_version }}/SHA256SUMS
+    dest: /tmp/etcd_{{ etcd_version }}_checksums.txt
+    owner: "{{ etcd_owner }}"
+    group: "{{ etcd_owner }}"
+    mode: 0444
+  register: checksum_file 
+
+- name: register sha256 checksum value for etcd
+  set_fact:
+    sha256_etcd: "{{ lookup('file', checksum_file['dest']).split(\t)[2] }}"
+
+- name: download cfssl for linux
+  get_url:
+    url: https://github.com/etcd-io/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-{{ etcd_os }}-{{ etcd_arch }}.tar.gz
+    dest: "{{ etcd_bin_directory }}/etcd"
+    owner: "{{ etcd_owner }}"
+    group: "{{ etcd_owner }}"
+    mode: 0755
+    checksum: "sha256:{{ sha256_etcd }}"
