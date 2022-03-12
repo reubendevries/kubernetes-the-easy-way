@@ -1,3 +1,0 @@
----
-# vars file for kubectl
-kubectl_version: 1.21.0
