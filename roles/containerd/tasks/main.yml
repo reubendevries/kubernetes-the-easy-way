@@ -1,0 +1,23 @@
+---
+# tasks file for containerd
+- name: Download sha256 file for containerd
+  get_url:
+    url: https://github.com/containerd/containerd/releases/download/v1.4.4/containerd-1.4.4-linux-amd64.tar.gz.sha256sum
+    dest: containerd-1.4.4-linux-amd64.tar.gz.sha256sum
+    owner: "{{ containerd_owner }}"
+    group: "{{ containerd_group }}"
+    mode: 0444
+  register: checksum_file 
+
+- name: register sha256 checksum value for containerd
+  set_fact:
+    sha256_containerd: "{{ lookup('file', checksum_file['dest']).split()[30] }}"
+
+- name: download cfssl for linux
+  get_url:
+    url: https://github.com/containerd/containerd/releases/download/v1.4.4/containerd-1.4.4-linux-amd64.tar.gz
+    dest: /tmp/
+    owner: "{{ containerd_owner }}"
+    group: "{{ containerd_owner }}"
+    mode: 0655
+    checksum: "sha256:{{ sha256_containerd }}"
