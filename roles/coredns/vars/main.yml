@@ -1,0 +1,8 @@
+---
+# vars file for coredns
+coredns_version: 1.8.3
+coredns_bin_directory: "/usr/local/bin"
+coredns_owner: "root"
+coredns_group: "wheel"
+coredns_os: "linux"
+coredns_arch: "amd64"
