@@ -1,0 +1,31 @@
+---
+# tasks file for coredns
+- name: Download sha256 file for coredns
+  get_url:
+    url: https://github.com/coredns/coredns/releases/download/v{{ coredns_version }}/coredns_{{ coredns_version }}_{{ coredns_os }}_{{ coredns_arch }}.tgz.sha256
+    dest: /tmp/coredns_{{ coredns_version }}_{{ coredns_os }}_{{ coredns_arch }}.tgz.sha256
+    owner: "{{ coredns_owner }}"
+    group: "{{ coredns_group }}"
+    mode: 0444
+  register: checksum_file 
+
+- name: register sha256 checksum value for coredns
+  set_fact:
+    sha256_coredns: "{{ lookup('file', checksum_file['dest']).split(\t)[0] }}"
+
+- name: download coredns for linux
+  get_url:
+    url: https://github.com/coredns/coredns/releases/download/v{{ coredns_version }}/coredns_{{ coredns_version }}_{{ coredns_os }}_{{ coredns_arch }}.tgz
+    dest: "/tmp"
+    owner: "{{ coredns_owner }}"
+    group: "{{ coredns_group }}"
+    mode: 0655
+    checksum: "sha256:{{ sha256_coredns }}"
+
+- name: extract coredns
+  unarchive:
+    src: /tmp/coredns_{{ coredns_version }}_{{ coredns_os }}_{{ coredns_arch }}.tgz
+    dest: /tmp
+    owner: "{{ coredns_owner }}"
+    group: "{{ coredns_group }}"
+    mode: 0655
