@@ -1,0 +1,8 @@
+---
+# vars file for containerd
+containerd_version: 1.4.4
+containerd_bin_directory: "/usr/local/bin"
+containerd_owner: "root"
+containerd_group: "wheel"
+containerd_os: "linux"
+containerd_arch: "amd64"

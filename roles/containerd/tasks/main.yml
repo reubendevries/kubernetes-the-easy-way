@@ -1,0 +1,39 @@
+---
+# tasks file for containerd
+- name: Download sha256 file for containerd
+  get_url:
+    url: https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-{{ containerd_os }}-{{ containerd_arch }}.tar.gz.sha256sum
+    dest: /tmp/
+    owner: "{{ containerd_owner }}"
+    group: "{{ containerd_group }}"
+    mode: 0444
+  register: checksum_file
+  delegate_to: localhost
+
+- name: register sha256 checksum value for containerd
+  set_fact:
+    sha256_containerd: "{{ lookup('file', checksum_file['dest']).split(\n)[0] }}"
+  delegate_to: localhost
+
+- name: download containerd for linux
+  get_url:
+    url: https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-{{ containerd_os }}-{{ containerd_arch }}.tar.gz
+    dest: /tmp/
+    owner: "{{ containerd_owner }}"
+    group: "{{ containerd_group }}"
+    mode: 0655
+    checksum: "sha256:{{ sha256_containerd }}"
+  register: containerd_tar
+  delegate_to: localhost
+
+- name: extract containerd-1.4.4-linux-amd64.tar.gz
+  unarchive:
+    src: "{{ containerd_tar['dest'] }}"
+    dest: /tmp/
+    owner: "{{ containerd_owner }}"
+    group: "{{ containerd_group }}"
+    mode: 0655
+  register: containerd
+  delegate_to: localhost
+
+- name: copy containerd
