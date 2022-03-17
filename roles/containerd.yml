@@ -1,5 +1,5 @@
 ---
-- hosts: [controllers:workers]
+- hosts: [localhost:controllers:workers]
   gather_facts: no
   become: yes
   roles:

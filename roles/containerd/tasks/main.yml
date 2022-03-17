@@ -36,4 +36,18 @@
   register: containerd
   delegate_to: localhost
 
+- name: debug containerd
+  debug:
+    var: containerd
+  delegate_to: localhost
+
 - name: copy containerd
+  copy:
+    src: "{{ containerd['dest'] }}/bin/"
+    dest: "{{ containerd_bin_directory }}"
+    owner: root
+    group: root
+    mode: 0655
+    
+
+  
