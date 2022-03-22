@@ -1,8 +1,8 @@
 ---
 # vars for cfssl role
-common_name: kubernetes.int.bell.ca
-country: "CA"
-location: "Ottawa"
-organization: "Bell Canada"
-organizational_unit: "Bell Canada"
-state: "Ontario"
+common_name: 
+country: 
+location:
+organization: 
+organizational_unit: 
+state: 
